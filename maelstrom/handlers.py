@@ -2,6 +2,8 @@ import urllib.parse
 
 from tornado import web
 
+from . import transcode
+
 
 class MasterManifestHandler(web.RequestHandler):
 
@@ -22,6 +24,30 @@ class VariantManifestHandler(web.RequestHandler):
         except KeyError:
             raise web.HTTPError(404)
         self.write(variant.text)
+
+
+class TranscodeHandler(web.RequestHandler):
+
+    async def get(self, media_id, variant_id, segment):
+        mediafile = self.application.media[media_id]
+        if mediafile not in self.application.actively_transcoding:
+            await self.transcode(
+                mediafile,
+                mediafile.path,
+                variant_id,
+                mediafile.media_id,
+                self.application.transcode_cache,
+                segment.split('.')[0]
+            )
+        self.write(
+            self.application.transcode_cache.joinpath(
+                media_id, variant_id, segment).read_bytes()
+        )
+
+    async def transcode(self, mediafile, *args):
+        self.application.actively_transcoding.add(mediafile)
+        await transcode.transcode(*args)
+        self.application.actively_transcoding.pop(mediafile)
 
 
 class IndexHandler(web.RequestHandler):

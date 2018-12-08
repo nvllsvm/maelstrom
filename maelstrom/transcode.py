@@ -1,11 +1,8 @@
 import asyncio
-import pathlib
-
-OUTPUT = pathlib.Path('build/transcode')
 
 
 async def transcode(source, variant, media_id, output, segment_start):
-    output = output.joinpath(media_id)
+    output = output.joinpath(media_id, variant)
     output.mkdir(parents=True, exist_ok=True)
 
     proc_args = [
@@ -18,7 +15,8 @@ async def transcode(source, variant, media_id, output, segment_start):
         '-map_chapters', '-1', '-start_at_zero', '-segment_time', '6',
         '-individual_header_trailer', '0', '-break_non_keyframes', '1',
         '-segment_format', 'mpegts', '-segment_list_type', 'm3u8',
-        '-segment_start_number', str(segment_start),
-        '-y', f'{output}/{variant}_%d.ts'
+        '-initial_offset', str(segment_start),
+        '-y', f'{output}/%d.ts'
     ]
-    await asyncio.create_subprocess_exec(proc_args)
+    proc = await asyncio.create_subprocess_exec(*proc_args)
+    await proc.wait()

@@ -81,5 +81,5 @@ class VariantManifest(Manifest):
                 segment_length = duration
             self.lines.append('#EXTINF:{:.4f}, nodesc'.format(
                 round(float(segment_length), 4)))
-            self.lines.append(f'{self.variant_id}_{i}.ts')
+            self.lines.append(f'{self.variant_id}/{i}.ts')
         self.lines.append('#EXT-X-ENDLIST')

@@ -31,12 +31,14 @@ def all_files(root):
 
 class Application(web.Application):
 
-    def __init__(self, paths, **kwargs):
+    def __init__(self, paths, transcode_cache, **kwargs):
         routes = [
             ('/media/(?P<media_id>[a-z0-9]*)/master.m3u8',
              handlers.MasterManifestHandler),
             ('/media/(?P<media_id>[a-z0-9]*)/(?P<variant_id>[a-z0-9]*).m3u8',
              handlers.VariantManifestHandler),
+            ('/media/(?P<media_id>[a-z0-9]*)/(?P<variant_id>[a-z0-9]*)/(?P<segment>.*)',
+             handlers.TranscodeHandler),
             ('/media/(.*)', web.StaticFileHandler, {'path': 'transcode'}),
             ('/', handlers.IndexHandler),
             ('/static/(.*)', web.StaticFileHandler, {
@@ -46,6 +48,7 @@ class Application(web.Application):
         ]
         super().__init__(routes, template_path=TEMPLATE_PATH, **kwargs)
 
+        self.transcode_cache = transcode_cache
         self.add_transform(ServerHeaderTransform)
 
         self.actively_transcoding = set()
@@ -75,7 +78,7 @@ def run():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-d', '--directory',
+        '-m', '--media',
         type=pathlib.Path,
         action='append',
         required=True
@@ -85,9 +88,14 @@ def run():
         type=int,
         default=8000
     )
+    parser.add_argument(
+        '-t', '--transcode-cache',
+        type=pathlib.Path,
+        required=True
+    )
     args = parser.parse_args()
 
-    app = Application(args.directory, autoreload=True)
+    app = Application(args.media, args.transcode_cache, autoreload=True)
     app.listen(args.port)
     ioloop.IOLoop.current().start()
 
