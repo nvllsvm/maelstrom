@@ -10,7 +10,7 @@ setuptools.setup(
     license='GPLv3',
     packages=['maelstrom'],
     package_data={
-        'maelstrom': ['templates/*'],
+        'maelstrom': ['static/*', 'templates/*'],
     },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',

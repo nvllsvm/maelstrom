@@ -9,6 +9,9 @@ from . import handlers, media
 
 LOGGER = logging.getLogger(__package__)
 
+STATIC_PATH = pathlib.Path(
+    pkg_resources.resource_filename(__package__, 'static')
+)
 TEMPLATE_PATH = pathlib.Path(
     pkg_resources.resource_filename(__package__, 'templates')
 )
@@ -37,8 +40,9 @@ class Application(web.Application):
             ('/media/(.*)', web.StaticFileHandler, {'path': 'transcode'}),
             ('/', handlers.IndexHandler),
             ('/static/(.*)', web.StaticFileHandler, {
-                'path': 'static',
-                'default_filename': 'index.html'})
+                'path': STATIC_PATH,
+                'default_filename': 'index.html'}
+             )
         ]
         super().__init__(routes, template_path=TEMPLATE_PATH, **kwargs)
 
