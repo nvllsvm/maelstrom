@@ -47,7 +47,7 @@ class TranscodeHandler(web.RequestHandler):
     async def transcode(self, mediafile, *args):
         self.application.actively_transcoding.add(mediafile)
         await transcode.transcode(*args)
-        self.application.actively_transcoding.pop(mediafile)
+        self.application.actively_transcoding.remove(mediafile)
 
 
 class IndexHandler(web.RequestHandler):
