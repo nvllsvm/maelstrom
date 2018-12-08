@@ -1,4 +1,7 @@
-from maelstrom import hls, ffmpeg
+import functools
+import hashlib
+
+from . import hls, ffmpeg
 
 STREAM_INFO = {
     'BANDWIDTH': 6140324,
@@ -12,12 +15,24 @@ STREAM_INFO = {
 
 class Video:
 
-    def __init__(self, media_id, path):
-        self.media_id = media_id
+    def __init__(self, path):
         self.path = path.resolve()
-        self.seconds = ffmpeg.get_duration_seconds(path)
-        self.manifest = hls.MasterManifest()
-        self.manifest.add_variant(hls.VariantManifest(
-            'onlyquality',
-            STREAM_INFO,
-            self.seconds))
+
+        h = hashlib.sha256()
+        h.update(str(self.path).encode())
+        self.media_id = h.hexdigest()
+
+    @property
+    @functools.lru_cache(1)
+    def manifest(self):
+        seconds = ffmpeg.get_duration_seconds(self.path)
+
+        manifest = hls.MasterManifest()
+        manifest.add_variant(
+            hls.VariantManifest(
+                'onlyquality',
+                STREAM_INFO,
+                seconds
+            )
+        )
+        return manifest

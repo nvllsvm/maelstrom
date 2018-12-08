@@ -1,0 +1,12 @@
+<html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    <body>
+        {% for m in sorted(media, key=lambda x: x[1].path) %}
+            <div class="mediafile">
+                <a href="/static/index.html?src={{ m[0] }}">{{ m[1].path }}</a>
+            </div>
+        {% end %}
+    </body>
+</html>

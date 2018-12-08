@@ -1,25 +1,11 @@
-import hashlib
+import asyncio
 import pathlib
-import subprocess
-import sys
-
 
 OUTPUT = pathlib.Path('build/transcode')
-OUTPUT.mkdir(parents=True, exist_ok=True)
-SOURCE = pathlib.Path(sys.argv[1]).resolve()
-
-VARIANT = 'onlyquality'
-SEGMENT_START = 0
 
 
-def hash_name(value):
-    h = hashlib.sha256()
-    h.update(value.encode())
-    return h.hexdigest()
-
-
-def _transcode(source, variant, output, segment_start):
-    output = output.joinpath(hash_name(str(source)))
+async def transcode(source, variant, media_id, output, segment_start):
+    output = output.joinpath(media_id)
     output.mkdir(parents=True, exist_ok=True)
 
     proc_args = [
@@ -35,7 +21,4 @@ def _transcode(source, variant, output, segment_start):
         '-segment_start_number', str(segment_start),
         '-y', f'{output}/{variant}_%d.ts'
     ]
-    subprocess.run(proc_args, check=True)
-
-
-_transcode(SOURCE, VARIANT, OUTPUT, SEGMENT_START)
+    await asyncio.create_subprocess_exec(proc_args)
