@@ -5,7 +5,7 @@ setuptools.setup(
     name='maelstrom',
     version='0.0.1',
     author='Andrew Rabert',
-    author_email='arabert@nullsum.net',
+    author_email='ar@nullsum.net',
     url='https://github.com/nvllsvm/maelstrom',
     license='GPLv3',
     packages=['maelstrom'],
