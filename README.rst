@@ -3,6 +3,13 @@ maelstrom
 
 A minimalist multimedia streaming server
 
+Requirements
+------------
+
+* FFMPEG
+* Python 3.6+
+
+
 Setup
 -----
 
